@@ -874,10 +874,23 @@ function showResult(){
   if(!measuredScores) measuredScores=Array.from({length:21},()=>Math.floor(Math.random()*15)+1);
 
   const scores=measuredScores;
-  const indexed=scores.map((s,i)=>({i,s}));
-  const sorted=[...indexed].sort((a,b)=>b.s-a.s);
-  const top5=sorted.slice(0,5);
-  const bot3=sorted.slice(-3);
+
+  // Finger groups
+  const FINGERS=[
+    {name:'WRIST',jp:'手首',joints:[0],color:'#39ff14'},
+    {name:'THUMB',jp:'親指',joints:[1,2,3,4],color:'#ff8c00'},
+    {name:'INDEX',jp:'人差し指',joints:[5,6,7,8],color:'#ffe600'},
+    {name:'MIDDLE',jp:'中指',joints:[9,10,11,12],color:'#00ff41'},
+    {name:'RING',jp:'薬指',joints:[13,14,15,16],color:'#ff2d78'},
+    {name:'PINKY',jp:'小指',joints:[17,18,19,20],color:'#bf00ff'},
+  ];
+
+  // For each finger, find dominant joint (highest score)
+  const fingerResults=FINGERS.map(f=>{
+    let best={i:f.joints[0],s:scores[f.joints[0]]};
+    f.joints.forEach(j=>{if(scores[j]>best.s){best={i:j,s:scores[j]};}});
+    return{...f,dominant:best};
+  });
 
   const arch=ARCHETYPES[Math.floor(Math.random()*ARCHETYPES.length)];
   const sid='BD-'+Date.now().toString(36).toUpperCase().slice(-8);
@@ -887,12 +900,17 @@ function showResult(){
   const boneAge=20+Math.floor(Math.random()*40);
   const asymmetry=(Math.random()*8).toFixed(1);
 
-  const fitem=(item,sup)=>{
-    const m=JMETA[item.i];
-    const pat=D[item.i][item.s-1];
-    return`<div class="fi">
-      <div class="fi-node" style="color:${m.color}">${m.node} · ${m.en} · LVL-${item.s.toString().padStart(2,'0')}</div>
-      <div class="fi-word" style="color:${m.color};text-shadow:0 0 8px ${m.color}">${pat[0]}</div>
+  // Total summary based on top 3 fingers
+  const sorted=[...fingerResults].sort((a,b)=>b.dominant.s-a.dominant.s);
+  const top3=sorted.slice(0,3);
+  const totalSummary=generateTotal(top3,arch);
+
+  const fingerCard=(fr)=>{
+    const m=JMETA[fr.dominant.i];
+    const pat=D[fr.dominant.i][fr.dominant.s-1];
+    return`<div class="fi" style="border-left:2px solid ${fr.color};padding-left:14px;margin:20px 0">
+      <div style="font-size:clamp(10px,2.2vw,12px);letter-spacing:.4em;color:${fr.color};text-shadow:0 0 8px ${fr.color};margin-bottom:4px">${fr.name} <span style="opacity:.7">${fr.jp}</span> · ${m.trait} · LVL-${fr.dominant.s.toString().padStart(2,'0')}</div>
+      <div class="fi-word" style="color:${fr.color};text-shadow:0 0 10px ${fr.color}">${pat[0]}</div>
       <div class="fi-f">${pat[1]}</div>
       <div class="fi-b">${pat[2]}</div>
     </div>`;
@@ -910,28 +928,22 @@ PALM ASPECT RATIO&nbsp;&nbsp;&nbsp;<span style="color:#333">手のひら縦横�
 BONE DENSITY INDEX&nbsp;&nbsp;<span style="color:#333">骨密度指数</span>&nbsp;&nbsp;&nbsp;&nbsp;: <span class="c2">${density} g/cm²</span><br>
 SKELETAL AGE EST&nbsp;&nbsp;&nbsp;<span style="color:#333">骨格推定年齢</span>&nbsp;&nbsp;: <span class="c3">${boneAge} yrs</span><br>
 BILATERAL ASYMMETRY&nbsp;<span style="color:#333">左右非対称度</span>&nbsp;&nbsp;: <span class="c4">${asymmetry}%</span><br>
-DOMINANT FINGER&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#333">支配的な指</span>&nbsp;&nbsp;&nbsp;&nbsp;: <span class="c1">${['THUMB 親指','INDEX 人差し指','MIDDLE 中指','RING 薬指','PINKY 小指'][Math.floor(Math.random()*5)]}</span><br>
+DOMINANT FINGER&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#333">支配的な指</span>&nbsp;&nbsp;&nbsp;&nbsp;: <span class="c1">${sorted[0].name} ${sorted[0].jp}</span><br>
 TOTAL NODES LOCKED&nbsp;&nbsp;<span style="color:#333">取得ノード数</span>&nbsp;&nbsp;&nbsp;: <span class="c5">21 / 21</span>
 </div>
 
 <div class="r-section">
-  <div class="r-stitle">// アクティブノード — 支配的骨格回路</div>
-  ${top5.map(item=>fitem(item,false)).join('')}
+  <div class="r-stitle">// 6点骨格診断 — 各部位の回路読取</div>
+  ${fingerResults.map(fr=>fingerCard(fr)).join('')}
 </div>
 
-<div class="r-section r-sup">
-  <div class="r-stitle">// 休眠ノード — 抑制された骨格回路</div>
-  ${bot3.map(item=>fitem(item,true)).join('')}
-</div>
-
-<div class="compat">
-  <div class="compat-n" id="compat-num">0%</div>
-  <div class="compat-l">ARCHETYPE RESONANCE COEFFICIENT</div>
-</div>
-
-<div class="r-desc">
-  ${arch.desc}<br><br>
-  あなたの骨格は<span class="hi">${JMETA[top5[0].i].trait}</span>と<span class="hi">${JMETA[top5[1].i].trait}</span>が支配的出力を示し、<span class="lo">${JMETA[bot3[0].i].trait}</span>と<span class="lo">${JMETA[bot3[1].i].trait}</span>が休眠状態にある。この構造を持つ骨格は上位${3+Math.floor(Math.random()*9)}%の被験者のみに観測される。
+<div style="margin:28px 0;padding:20px;border:1px solid #1a1a1a;background:#050505">
+  <div class="r-stitle" style="margin-bottom:14px">// TOTAL READING — 骨格総合診断</div>
+  <div class="compat">
+    <div class="compat-n" id="compat-num">0%</div>
+    <div class="compat-l">ARCHETYPE RESONANCE COEFFICIENT</div>
+  </div>
+  <div class="r-desc" style="margin-top:16px">${totalSummary}</div>
 </div>
 
 <!-- LP -->
@@ -1013,8 +1025,21 @@ TOTAL NODES LOCKED&nbsp;&nbsp;<span style="color:#333">取得ノード数</span>
   document.getElementById('rc').innerHTML=html;
   showScreen('screen-result');
   document.getElementById('screen-result').scrollTop=0;
-  window._lastResult={arch,top5,bot3,compat};
+  window._lastResult={arch,fingerResults,sorted,compat};
   animateCompat(compat);
+}
+
+function generateTotal(top3,arch){
+  const t1=JMETA[top3[0].dominant.i];
+  const t2=JMETA[top3[1].dominant.i];
+  const t3=JMETA[top3[2].dominant.i];
+  const pct=3+Math.floor(Math.random()*9);
+  const templates=[
+    `${arch.desc}<br><br>あなたの骨格の核心は<span class="hi">${t1.trait}</span>だ。それを<span class="hi">${t2.trait}</span>が支え、<span class="hi">${t3.trait}</span>が補完する三角構造を形成している。この組み合わせは上位${pct}%の被験者のみに観測される稀有な骨格パターンだ。`,
+    `骨格が語る本当のあなたは——<span class="hi">${t1.trait}</span>を原動力に持ち、<span class="hi">${t2.trait}</span>で世界と向き合い、<span class="hi">${t3.trait}</span>で自分を守る。${arch.desc}この構造を持つ者は全被験者の${pct}%に過ぎない。`,
+    `<span class="hi">${t1.trait}</span>が骨の最深部に刻まれている。その上に<span class="hi">${t2.trait}</span>と<span class="hi">${t3.trait}</span>が積み重なり、あなたという人間を形成している。${arch.desc}`,
+  ];
+  return templates[Math.floor(Math.random()*templates.length)];
 }
 
 function animateCompat(target){
@@ -1030,13 +1055,15 @@ function animateCompat(target){
 ============================================================ */
 function shareX(){
   const r=window._lastResult;if(!r)return;
-  const txt=`🦴 BONE DIVE — 骨格解析完了\n\nアーキタイプ: ${r.arch.code}「${r.arch.name}」\n支配ノード: ${r.top5.slice(0,3).map(x=>JMETA[x.i].trait).join(' / ')}\n共鳴係数: ${r.compat}%\n\nあなたの骨が刻んでいる本当の性格は？\n🦴 ${location.href}\n\n#BONEDIVE #骨格鑑定 #本当の自分`;
+  const top3=r.sorted.slice(0,3).map(f=>`${f.jp}:${D[f.dominant.i][f.dominant.s-1][0]}`).join(' / ');
+  const txt=`🦴 BONE DIVE — 骨格解析完了\n\nアーキタイプ: ${r.arch.code}「${r.arch.name}」\n${top3}\n共鳴係数: ${r.compat}%\n\nあなたの骨が刻んでいる本当の性格は？\n🦴 ${location.href}\n\n#BONEDIVE #骨格鑑定 #本当の自分`;
   window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(txt),'_blank','noopener');
 }
 
 function shareLINE(){
   const r=window._lastResult;if(!r)return;
-  const txt=`🦴 BONE DIVE — 骨格解析完了\n\nアーキタイプ: ${r.arch.code}「${r.arch.name}」\n支配ノード: ${r.top5.slice(0,3).map(x=>JMETA[x.i].trait).join(' / ')}\n\nあなたの骨が刻んでいる本当の性格を解析！\n${location.href}`;
+  const top3=r.sorted.slice(0,3).map(f=>`${f.jp}: ${D[f.dominant.i][f.dominant.s-1][0]}`).join('\n');
+  const txt=`🦴 BONE DIVE — 骨格解析完了\n\nアーキタイプ: ${r.arch.code}「${r.arch.name}」\n${top3}\n\nあなたの骨が刻んでいる本当の性格を解析！\n${location.href}`;
   window.open('https://social-plugins.line.me/lineit/share?url='+encodeURIComponent(location.href)+'&text='+encodeURIComponent(txt),'_blank','noopener');
 }
 
