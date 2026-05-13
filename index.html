@@ -6,23 +6,23 @@
 <title>BONE DIVE — EXO-01</title>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--c:#00ff41;--p:#ff2d78;--b:#00f5ff;--y:#ffe600;--o:#ff8c00;--v:#bf00ff;--bg:#000}
+:root{--c:#00ff41;--p:#ff2d78;--b:#39ff14;--y:#ffe600;--o:#ff8c00;--v:#bf00ff;--bg:#000}
 html,body{width:100vw;height:100vh;overflow:hidden;background:#000;color:var(--c);font-family:'Courier New',monospace;user-select:none;-webkit-user-select:none;cursor:none;-webkit-text-size-adjust:none}
 body::before{content:'';position:fixed;inset:0;z-index:9999;background:repeating-linear-gradient(0deg,transparent 0,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none}
 .screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:10}
 .screen.active{display:flex}
 /* BOOT */
 #screen-boot{background:#000;gap:0}
-.boot-logo{font-size:clamp(30px,9vw,68px);font-weight:900;letter-spacing:.3em;color:var(--b);text-shadow:0 0 8px var(--b),0 0 25px var(--b),0 0 60px rgba(0,245,255,.4);animation:flicker 5s ease-in-out infinite;margin-bottom:4px}
+.boot-logo{font-size:clamp(30px,9vw,68px);font-weight:900;letter-spacing:.3em;color:var(--b);text-shadow:0 0 8px var(--b),0 0 25px var(--b),0 0 60px rgba(57,255,20,.4);animation:flicker 5s ease-in-out infinite;margin-bottom:4px}
 .boot-sub{font-size:clamp(7px,1.8vw,10px);letter-spacing:.5em;color:var(--o);text-shadow:0 0 8px var(--o);margin-bottom:28px}
 .boot-log{width:min(90vw,480px);font-size:clamp(9px,2vw,11px);color:#444;line-height:1.9;text-align:left;min-height:190px}
 .boot-line{opacity:0;animation:fadein .05s forwards}
 .boot-line.ok::after{content:' [OK]';color:var(--c)}
 .boot-line.warn::after{content:' [CAUTION]';color:var(--y)}
 .boot-line.err::after{content:' [ANOMALY]';color:var(--p)}
-#boot-btn{margin-top:22px;padding:13px 44px;background:transparent;border:1px solid var(--b);color:var(--b);font-family:inherit;font-size:clamp(11px,2.5vw,13px);letter-spacing:.35em;cursor:pointer;text-shadow:0 0 8px var(--b);box-shadow:0 0 16px rgba(0,245,255,.2),inset 0 0 12px rgba(0,245,255,.05);opacity:0;transition:opacity .4s,box-shadow .3s,background .3s}
+#boot-btn{margin-top:22px;padding:13px 44px;background:transparent;border:1px solid var(--b);color:var(--b);font-family:inherit;font-size:clamp(11px,2.5vw,13px);letter-spacing:.35em;cursor:pointer;text-shadow:0 0 8px var(--b);box-shadow:0 0 16px rgba(57,255,20,.2),inset 0 0 12px rgba(57,255,20,.05);opacity:0;transition:opacity .4s,box-shadow .3s,background .3s}
 #boot-btn.visible{opacity:1}
-#boot-btn:hover{background:rgba(0,245,255,.08);box-shadow:0 0 30px var(--b),inset 0 0 20px rgba(0,245,255,.1)}
+#boot-btn:hover{background:rgba(57,255,20,.08);box-shadow:0 0 30px var(--b),inset 0 0 20px rgba(57,255,20,.1)}
 /* DISCLAIMER */
 #screen-disclaimer{background:#000;padding:0 6vw}
 .disc-logo{font-size:clamp(9px,2vw,11px);letter-spacing:.5em;color:var(--b);text-shadow:0 0 8px var(--b);margin-bottom:28px}
@@ -37,24 +37,31 @@ body::before{content:'';position:fixed;inset:0;z-index:9999;background:repeating
 #disc-start-btn:hover{background:rgba(255,45,120,.08);box-shadow:0 0 30px var(--p)}
 /* SCAN */
 #screen-scan{background:#000}
-#scan-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;opacity:.4;transform:scaleX(-1);z-index:1}
+#scan-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;opacity:.4;z-index:1}
 #scan-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
 .scan-ui{position:fixed;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:5vh 6vw 8vh;pointer-events:none}
 .scan-title{font-size:clamp(13px,3.2vw,20px);letter-spacing:.55em;color:var(--b);text-shadow:0 0 12px var(--b)}
 #scan-status{font-size:clamp(9px,2vw,11px);letter-spacing:.35em;margin-top:6px;min-height:18px;color:var(--c);text-shadow:0 0 6px var(--c)}
 .pbar-bg{width:100%;height:1px;background:#111}
 .pbar-fill{height:100%;width:0%;background:var(--b);box-shadow:0 0 8px var(--b);transition:width .12s linear}
-#scan-pct{text-align:center;font-size:clamp(8px,1.8vw,10px);color:rgba(0,245,255,.4);letter-spacing:.4em;margin-top:6px}
+#scan-pct{text-align:center;font-size:clamp(8px,1.8vw,10px);color:rgba(57,255,20,.4);letter-spacing:.4em;margin-top:6px}
 .corners{position:fixed;inset:0;z-index:2;pointer-events:none}
-.corner{position:absolute;width:20px;height:20px;border-color:rgba(0,245,255,.5);border-style:solid}
+.corner{position:absolute;width:20px;height:20px;border-color:rgba(57,255,20,.5);border-style:solid}
 .corner.tl{top:12px;left:12px;border-width:1px 0 0 1px}
 .corner.tr{top:12px;right:12px;border-width:1px 1px 0 0}
 .corner.bl{bottom:12px;left:12px;border-width:0 0 1px 1px}
 .corner.br{bottom:12px;right:12px;border-width:0 1px 1px 0}
+/* SCAN COMPLETE */
+#screen-complete{background:#000}
+.complete-inner{text-align:center;padding:0 6vw}
+.complete-title{font-size:clamp(22px,8vw,52px);font-weight:900;letter-spacing:.3em;color:var(--b);text-shadow:0 0 20px var(--b),0 0 50px rgba(57,255,20,.5);margin-bottom:8px}
+.complete-sub{font-size:clamp(11px,2.8vw,16px);letter-spacing:.5em;color:#fff;margin-bottom:28px}
+.complete-data{font-size:clamp(9px,2vw,11px);color:var(--c);letter-spacing:.3em;margin:0 0 20px;min-height:88px;line-height:2.2;text-align:left;width:min(90vw,360px)}
+.complete-analyzing{font-size:clamp(10px,2.2vw,12px);letter-spacing:.4em;color:var(--o);text-shadow:0 0 8px var(--o);animation:flicker 1s ease-in-out infinite}
 /* RESULT */
 #screen-result{background:#000;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;align-items:flex-start;justify-content:flex-start}
 #screen-result::-webkit-scrollbar{width:2px}
-#screen-result::-webkit-scrollbar-thumb{background:rgba(0,245,255,.2)}
+#screen-result::-webkit-scrollbar-thumb{background:rgba(57,255,20,.2)}
 .rc{width:100%;max-width:640px;margin:0 auto;padding:7vh 6vw 80px}
 .r-hdr{text-align:center;margin-bottom:26px}
 .r-sid{font-size:clamp(8px,1.8vw,10px);color:#fff;letter-spacing:.4em;margin-bottom:5px}
@@ -87,8 +94,8 @@ body::before{content:'';position:fixed;inset:0;z-index:9999;background:repeating
 .r-desc .lo{color:#666}
 /* LP */
 .lp-divider{text-align:center;padding:44px 0 38px;position:relative}
-.lp-divider::before{content:'';display:block;width:1px;height:44px;background:linear-gradient(to bottom,transparent,rgba(0,245,255,.5));margin:0 auto 26px}
-.lp-divider-txt{font-size:clamp(16px,4.5vw,24px);font-weight:900;letter-spacing:.12em;color:var(--b);text-shadow:0 0 20px var(--b),0 0 50px rgba(0,245,255,.4);line-height:1.6;animation:flicker 6s ease-in-out infinite}
+.lp-divider::before{content:'';display:block;width:1px;height:44px;background:linear-gradient(to bottom,transparent,rgba(57,255,20,.5));margin:0 auto 26px}
+.lp-divider-txt{font-size:clamp(16px,4.5vw,24px);font-weight:900;letter-spacing:.12em;color:var(--b);text-shadow:0 0 20px var(--b),0 0 50px rgba(57,255,20,.4);line-height:1.6;animation:flicker 6s ease-in-out infinite}
 .lp-block{padding:24px 0}
 .lp-block+.lp-block{border-top:1px solid #0a0a0a}
 .lp-big{font-size:clamp(18px,5vw,26px);font-weight:900;color:#fff;line-height:1.7;letter-spacing:.04em;text-align:center}
@@ -175,6 +182,16 @@ body::before{content:'';position:fixed;inset:0;z-index:9999;background:repeating
   </div>
 </div>
 
+<!-- SCAN COMPLETE -->
+<div id="screen-complete" class="screen">
+  <div class="complete-inner">
+    <div class="complete-title">SCAN COMPLETE</div>
+    <div class="complete-sub">骨格解析完了</div>
+    <div class="complete-data" id="complete-data"></div>
+    <div class="complete-analyzing" id="complete-analyzing">解析処理中...</div>
+  </div>
+</div>
+
 <!-- RESULT -->
 <div id="screen-result" class="screen">
   <div class="rc" id="rc"></div>
@@ -208,7 +225,7 @@ const BOOT_LOG = [
    JOINT METADATA
 ============================================================ */
 const JMETA = [
-  {node:'WRIST_NODE',jp:'手首',color:'#00f5ff',trait:'基盤回路',en:'FOUNDATION'},
+  {node:'WRIST_NODE',jp:'手首',color:'#39ff14',trait:'基盤回路',en:'FOUNDATION'},
   {node:'T_CMC',jp:'親指根',color:'#ff8c00',trait:'意志回路',en:'WILL'},
   {node:'T_MCP',jp:'親指第二',color:'#ff8c00',trait:'権力回路',en:'POWER'},
   {node:'T_IP',jp:'親指第一',color:'#ff8c00',trait:'論理回路',en:'LOGIC'},
@@ -603,14 +620,14 @@ const ARCHETYPES=[
 /* ============================================================
    JOINT COLORS / CONNECTIONS
 ============================================================ */
-const JCOLORS=['#00f5ff','#ff8c00','#ff8c00','#ff8c00','#ff8c00','#ffe600','#ffe600','#ffe600','#ffe600','#00ff41','#00ff41','#00ff41','#00ff41','#ff2d78','#ff2d78','#ff2d78','#ff2d78','#bf00ff','#bf00ff','#bf00ff','#bf00ff'];
+const JCOLORS=['#39ff14','#ff8c00','#ff8c00','#ff8c00','#ff8c00','#ffe600','#ffe600','#ffe600','#ffe600','#00ff41','#00ff41','#00ff41','#00ff41','#ff2d78','#ff2d78','#ff2d78','#ff2d78','#bf00ff','#bf00ff','#bf00ff','#bf00ff'];
 const CONNS=[
   [0,1,'#ff8c00'],[1,2,'#ff8c00'],[2,3,'#ff8c00'],[3,4,'#ff8c00'],
   [0,5,'#ffe600'],[5,6,'#ffe600'],[6,7,'#ffe600'],[7,8,'#ffe600'],
   [0,9,'#00ff41'],[9,10,'#00ff41'],[10,11,'#00ff41'],[11,12,'#00ff41'],
   [0,13,'#ff2d78'],[13,14,'#ff2d78'],[14,15,'#ff2d78'],[15,16,'#ff2d78'],
   [0,17,'#bf00ff'],[17,18,'#bf00ff'],[18,19,'#bf00ff'],[19,20,'#bf00ff'],
-  [5,9,'#00f5ff'],[9,13,'#00f5ff'],[13,17,'#00f5ff'],
+  [5,9,'#39ff14'],[9,13,'#39ff14'],[13,17,'#39ff14'],
 ];
 const JLEVEL=[0,1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4];
 
@@ -618,7 +635,7 @@ const JLEVEL=[0,1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4];
    STATE
 ============================================================ */
 let handsMesh=null,scanCam=null,lockFrames=0,scanPct=0;
-const LOCK_TARGET=40;
+const LOCK_TARGET=120;
 let measuredScores=null;
 
 /* ============================================================
@@ -661,7 +678,7 @@ async function startScan(){
   window.addEventListener('resize',resize);
 
   try{
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}},audio:false});
     video.srcObject=stream;
     await video.play().catch(()=>{});
   }catch(e){
@@ -696,8 +713,8 @@ function simulateScan(){
     lockFrames++;
     scanPct=Math.min(100,(lockFrames/LOCK_TARGET)*100);
     updatePbar();
-    if(lockFrames>=LOCK_TARGET){clearInterval(iv);setStatus('LOCK CONFIRMED');setTimeout(showResult,700);}
-  },100);
+    if(lockFrames>=LOCK_TARGET){clearInterval(iv);setStatus('LOCK CONFIRMED');setTimeout(showComplete,700);}
+  },42);
 }
 
 function dist3(a,b){return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2+(a.z-b.z)**2);}
@@ -746,7 +763,7 @@ function onScanFrame(res){
   else if(lockFrames>=LOCK_TARGET){
     setStatus('SKELETAL LOCK CONFIRMED');
     if(scanCam){try{scanCam.stop();}catch{}}
-    setTimeout(showResult,700);
+    setTimeout(showComplete,700);
   }
 }
 
@@ -758,7 +775,7 @@ function updatePbar(){
 function drawSkeleton(ctx,lm,W,H){
   const t=Date.now()/1000;
   const prog=lockFrames/LOCK_TARGET;
-  const px=l=>({x:(1-l.x)*W,y:l.y*H});
+  const px=l=>({x:l.x*W,y:l.y*H});
 
   // Draw connections
   CONNS.forEach(([a,b,col])=>{
@@ -817,10 +834,37 @@ function drawSkeleton(ctx,lm,W,H){
     const y=Math.random()*H;
     ctx.save();
     ctx.globalAlpha=0.04;
-    ctx.fillStyle='#00f5ff';
+    ctx.fillStyle='#39ff14';
     ctx.fillRect(0,y,W*Math.random(),1+Math.random()*2);
     ctx.restore();
   }
+}
+
+/* ============================================================
+   SCAN COMPLETE
+============================================================ */
+function showComplete(){
+  showScreen('screen-complete');
+  const dataEl=document.getElementById('complete-data');
+  dataEl.innerHTML='';
+  const lines=[
+    '21 NODES ACQUIRED...',
+    'CALCULATING JOINT RATIOS...',
+    'MATCHING 315 PATTERNS...',
+    'ARCHETYPE RESONANCE CHECK...',
+    'COMPILING FINAL REPORT...',
+  ];
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i<lines.length){
+      dataEl.innerHTML+=`> ${lines[i]}<br>`;
+      i++;
+    }else{
+      clearInterval(iv);
+      document.getElementById('complete-analyzing').textContent='COMPLETE — 解析完了';
+      setTimeout(showResult,1000);
+    }
+  },500);
 }
 
 /* ============================================================
@@ -857,7 +901,7 @@ function showResult(){
   const html=`
 <div class="r-hdr">
   <div class="r-sid">SESSION: ${sid} · BONE DIVE EXO-01 · ${new Date().toISOString().slice(0,19)}Z</div>
-  <div class="r-type" style="color:#00f5ff;text-shadow:0 0 16px #00f5ff,0 0 40px rgba(0,245,255,.5)">${arch.code}</div>
+  <div class="r-type" style="color:#39ff14;text-shadow:0 0 16px #39ff14,0 0 40px rgba(57,255,20,.5)">${arch.code}</div>
   <div class="r-arch" style="color:#ff2d78;text-shadow:0 0 8px #ff2d78">${arch.name}</div>
 </div>
 
@@ -1013,6 +1057,8 @@ function retryAll(){
   lockFrames=0;scanPct=0;measuredScores=null;
   document.getElementById('scan-pbar').style.width='0%';
   document.getElementById('scan-pct').textContent='0%';
+  document.getElementById('complete-data').innerHTML='';
+  document.getElementById('complete-analyzing').textContent='解析処理中...';
   setStatus('ACQUIRING TARGET...');
   document.getElementById('boot-btn').classList.remove('visible');
   showScreen('screen-boot');
