@@ -639,6 +639,84 @@ const LOCK_TARGET=120;
 let measuredScores=null;
 
 /* ============================================================
+   AUDIO
+============================================================ */
+let audioCtx=null;
+let scanBeepInterval=null;
+
+function initAudio(){
+  if(!audioCtx){
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  }
+}
+
+function playTone(freq,type,vol,duration,freqEnd){
+  if(!audioCtx)return;
+  const osc=audioCtx.createOscillator();
+  const gain=audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.type=type||'sine';
+  osc.frequency.setValueAtTime(freq,audioCtx.currentTime);
+  if(freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd,audioCtx.currentTime+duration);
+  gain.gain.setValueAtTime(vol,audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+duration);
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime+duration+0.01);
+}
+
+function playScanPip(){
+  // ピッ — 短い電子音
+  playTone(1400,'square',0.15,0.06,900);
+}
+
+function playNodeLock(){
+  // ノード取得音 — 上昇音
+  playTone(600,'sine',0.2,0.12,1200);
+}
+
+function playLockConfirmed(){
+  // スキャン完了 — 3連音
+  if(!audioCtx)return;
+  [0,0.12,0.24].forEach((t,i)=>{
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.connect(gain);gain.connect(audioCtx.destination);
+    osc.type='sine';
+    osc.frequency.setValueAtTime([800,1000,1400][i],audioCtx.currentTime+t);
+    gain.gain.setValueAtTime(0.25,audioCtx.currentTime+t);
+    gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+t+0.18);
+    osc.start(audioCtx.currentTime+t);
+    osc.stop(audioCtx.currentTime+t+0.2);
+  });
+}
+
+function playResultBoom(){
+  if(!audioCtx)return;
+  // 重低音ドーン
+  playTone(80,'sine',0.9,1.8,35);
+  // 中音域インパクト
+  setTimeout(()=>playTone(200,'sawtooth',0.3,0.4,80),30);
+  // 高音スウィープ
+  setTimeout(()=>playTone(2400,'square',0.12,0.35,300),50);
+  // 残響
+  setTimeout(()=>playTone(60,'sine',0.5,2.0,30),200);
+}
+
+function startScanBeeps(){
+  stopScanBeeps();
+  scanBeepInterval=setInterval(()=>{
+    if(lockFrames>0 && lockFrames<LOCK_TARGET){
+      playScanPip();
+    }
+  },400);
+}
+
+function stopScanBeeps(){
+  if(scanBeepInterval){clearInterval(scanBeepInterval);scanBeepInterval=null;}
+}
+
+/* ============================================================
    BOOT
 ============================================================ */
 function runBoot(){
@@ -670,7 +748,9 @@ function showScreen(id){
    SCAN
 ============================================================ */
 async function startScan(){
+  initAudio();
   showScreen('screen-scan');
+  startScanBeeps();
   const video=document.getElementById('scan-video');
   const canvas=document.getElementById('scan-canvas');
   function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
@@ -713,7 +793,13 @@ function simulateScan(){
     lockFrames++;
     scanPct=Math.min(100,(lockFrames/LOCK_TARGET)*100);
     updatePbar();
-    if(lockFrames>=LOCK_TARGET){clearInterval(iv);setStatus('LOCK CONFIRMED');setTimeout(showComplete,700);}
+    if(lockFrames>=LOCK_TARGET){
+      clearInterval(iv);
+      stopScanBeeps();
+      playLockConfirmed();
+      setStatus('LOCK CONFIRMED');
+      setTimeout(showComplete,700);
+    }
   },42);
 }
 
@@ -760,8 +846,11 @@ function onScanFrame(res){
   else if(lockFrames<20) setStatus('MAPPING SKELETAL TOPOLOGY...');
   else if(lockFrames<30) setStatus('ENCODING BONE SIGNATURE...');
   else if(lockFrames===30) setStatus('LOCK SEQUENCE INITIATED');
+  else if(lockFrames%15===0 && lockFrames<LOCK_TARGET) playNodeLock();
   else if(lockFrames>=LOCK_TARGET){
     setStatus('SKELETAL LOCK CONFIRMED');
+    stopScanBeeps();
+    playLockConfirmed();
     if(scanCam){try{scanCam.stop();}catch{}}
     setTimeout(showComplete,700);
   }
@@ -1027,6 +1116,7 @@ TOTAL NODES LOCKED&nbsp;&nbsp;<span style="color:#333">取得ノード数</span>
   document.getElementById('screen-result').scrollTop=0;
   window._lastResult={arch,fingerResults,sorted,compat};
   animateCompat(compat);
+  setTimeout(playResultBoom,200);
 }
 
 function generateTotal(top3,arch){
@@ -1082,6 +1172,7 @@ function showCopied(){
 ============================================================ */
 function retryAll(){
   lockFrames=0;scanPct=0;measuredScores=null;
+  stopScanBeeps();
   document.getElementById('scan-pbar').style.width='0%';
   document.getElementById('scan-pct').textContent='0%';
   document.getElementById('complete-data').innerHTML='';
