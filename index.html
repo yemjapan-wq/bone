@@ -650,66 +650,118 @@ function initAudio(){
   }
 }
 
-function playTone(freq,type,vol,duration,freqEnd){
+function makeDistortionCurve(amount){
+  const n=256,curve=new Float32Array(n);
+  for(let i=0;i<n;i++){
+    const x=i*2/n-1;
+    curve[i]=(3+amount)*x*20*(Math.PI/180)/(Math.PI+amount*Math.abs(x));
+  }
+  return curve;
+}
+
+function playDeepPulse(){
+  // ソナー風の低音パルス
   if(!audioCtx)return;
   const osc=audioCtx.createOscillator();
   const gain=audioCtx.createGain();
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.type=type||'sine';
-  osc.frequency.setValueAtTime(freq,audioCtx.currentTime);
-  if(freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd,audioCtx.currentTime+duration);
-  gain.gain.setValueAtTime(vol,audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+duration);
+  const filter=audioCtx.createBiquadFilter();
+  osc.connect(filter);filter.connect(gain);gain.connect(audioCtx.destination);
+  filter.type='lowpass';filter.frequency.value=300;
+  osc.type='sine';
+  osc.frequency.setValueAtTime(160,audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(80,audioCtx.currentTime+0.6);
+  gain.gain.setValueAtTime(0,audioCtx.currentTime);
+  gain.gain.linearRampToValueAtTime(0.5,audioCtx.currentTime+0.03);
+  gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.6);
   osc.start(audioCtx.currentTime);
-  osc.stop(audioCtx.currentTime+duration+0.01);
-}
-
-function playScanPip(){
-  // ピッ — 短い電子音
-  playTone(1400,'square',0.15,0.06,900);
+  osc.stop(audioCtx.currentTime+0.65);
 }
 
 function playNodeLock(){
-  // ノード取得音 — 上昇音
-  playTone(600,'sine',0.2,0.12,1200);
+  // 低音クリック
+  if(!audioCtx)return;
+  const osc=audioCtx.createOscillator();
+  const gain=audioCtx.createGain();
+  osc.connect(gain);gain.connect(audioCtx.destination);
+  osc.type='sine';
+  osc.frequency.setValueAtTime(120,audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(60,audioCtx.currentTime+0.08);
+  gain.gain.setValueAtTime(0.6,audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.08);
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime+0.1);
 }
 
 function playLockConfirmed(){
-  // スキャン完了 — 3連音
+  // 重厚な確定音 — 低音ドローン
   if(!audioCtx)return;
-  [0,0.12,0.24].forEach((t,i)=>{
+  [0,0.18,0.36].forEach((t,i)=>{
     const osc=audioCtx.createOscillator();
     const gain=audioCtx.createGain();
-    osc.connect(gain);gain.connect(audioCtx.destination);
+    const dist=audioCtx.createWaveShaper();
+    dist.curve=makeDistortionCurve(80);
+    osc.connect(dist);dist.connect(gain);gain.connect(audioCtx.destination);
     osc.type='sine';
-    osc.frequency.setValueAtTime([800,1000,1400][i],audioCtx.currentTime+t);
-    gain.gain.setValueAtTime(0.25,audioCtx.currentTime+t);
-    gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+t+0.18);
+    osc.frequency.setValueAtTime([100,130,180][i],audioCtx.currentTime+t);
+    gain.gain.setValueAtTime(0.5,audioCtx.currentTime+t);
+    gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+t+0.5);
     osc.start(audioCtx.currentTime+t);
-    osc.stop(audioCtx.currentTime+t+0.2);
+    osc.stop(audioCtx.currentTime+t+0.55);
   });
 }
 
 function playResultBoom(){
   if(!audioCtx)return;
-  // 重低音ドーン
-  playTone(80,'sine',0.9,1.8,35);
-  // 中音域インパクト
-  setTimeout(()=>playTone(200,'sawtooth',0.3,0.4,80),30);
-  // 高音スウィープ
-  setTimeout(()=>playTone(2400,'square',0.12,0.35,300),50);
-  // 残響
-  setTimeout(()=>playTone(60,'sine',0.5,2.0,30),200);
+  const dist=audioCtx.createWaveShaper();
+  dist.curve=makeDistortionCurve(300);
+  dist.oversample='4x';
+  dist.connect(audioCtx.destination);
+
+  // Sub bass 超低音
+  const sub=audioCtx.createOscillator();
+  const subGain=audioCtx.createGain();
+  sub.connect(subGain);subGain.connect(audioCtx.destination);
+  sub.type='sine';
+  sub.frequency.setValueAtTime(65,audioCtx.currentTime);
+  sub.frequency.exponentialRampToValueAtTime(28,audioCtx.currentTime+2.5);
+  subGain.gain.setValueAtTime(1.0,audioCtx.currentTime);
+  subGain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+3.0);
+  sub.start(audioCtx.currentTime);
+  sub.stop(audioCtx.currentTime+3.1);
+
+  // インパクト打撃音
+  const imp=audioCtx.createOscillator();
+  const impGain=audioCtx.createGain();
+  imp.connect(dist);
+  imp.connect(impGain);impGain.connect(audioCtx.destination);
+  imp.type='sine';
+  imp.frequency.setValueAtTime(200,audioCtx.currentTime);
+  imp.frequency.exponentialRampToValueAtTime(40,audioCtx.currentTime+0.2);
+  impGain.gain.setValueAtTime(1.2,audioCtx.currentTime);
+  impGain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.8);
+  imp.start(audioCtx.currentTime);
+  imp.stop(audioCtx.currentTime+0.85);
+
+  // 残響低音
+  setTimeout(()=>{
+    const rev=audioCtx.createOscillator();
+    const revGain=audioCtx.createGain();
+    rev.connect(revGain);revGain.connect(audioCtx.destination);
+    rev.type='sine';
+    rev.frequency.setValueAtTime(45,audioCtx.currentTime);
+    rev.frequency.exponentialRampToValueAtTime(25,audioCtx.currentTime+2.0);
+    revGain.gain.setValueAtTime(0.4,audioCtx.currentTime);
+    revGain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+2.0);
+    rev.start(audioCtx.currentTime);
+    rev.stop(audioCtx.currentTime+2.1);
+  },150);
 }
 
 function startScanBeeps(){
   stopScanBeeps();
   scanBeepInterval=setInterval(()=>{
-    if(lockFrames>0 && lockFrames<LOCK_TARGET){
-      playScanPip();
-    }
-  },400);
+    if(lockFrames>0 && lockFrames<LOCK_TARGET) playDeepPulse();
+  },800);
 }
 
 function stopScanBeeps(){
