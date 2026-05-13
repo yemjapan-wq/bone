@@ -1168,7 +1168,7 @@ TOTAL NODES LOCKED&nbsp;&nbsp;<span style="color:#333">取得ノード数</span>
   document.getElementById('screen-result').scrollTop=0;
   window._lastResult={arch,fingerResults,sorted,compat};
   animateCompat(compat);
-  setTimeout(playResultBoom,200);
+  stopScanBeeps();
 }
 
 function generateTotal(top3,arch){
