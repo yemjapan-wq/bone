@@ -717,20 +717,20 @@ function simulateScan(){
   },42);
 }
 
-function dist3(a,b){return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2+(a.z-b.z)**2);}
+function dist2(a,b){return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2);}
 function mapScore(v,lo,hi){const c=Math.max(lo,Math.min(hi,v));return Math.round(1+((c-lo)/(hi-lo))*14);}
 
 function calcScores(lm){
-  const ps=dist3(lm[0],lm[9]);
-  function seg(a,b){return dist3(lm[a],lm[b])/ps;}
+  const ps=dist2(lm[0],lm[9]);
+  function seg(a,b){return dist2(lm[a],lm[b])/ps;}
   const ranges=[[0.40,0.80],[0.10,0.25],[0.08,0.22],[0.07,0.18],[0.40,0.80],[0.20,0.38],[0.14,0.28],[0.09,0.20],[0.55,0.95],[0.20,0.38],[0.15,0.30],[0.09,0.20],[0.60,1.00],[0.18,0.35],[0.13,0.27],[0.08,0.18],[0.52,0.92],[0.14,0.28],[0.10,0.22],[0.07,0.16],[0.35,0.65]];
   const vals=[
-    dist3(lm[5],lm[17])/ps, // wrist: palm width ratio
-    seg(1,2),seg(2,3),seg(3,4),dist3(lm[1],lm[4])/ps,
-    seg(5,6),seg(6,7),seg(7,8),dist3(lm[5],lm[8])/ps,
-    seg(9,10),seg(10,11),seg(11,12),dist3(lm[9],lm[12])/ps,
-    seg(13,14),seg(14,15),seg(15,16),dist3(lm[13],lm[16])/ps,
-    seg(17,18),seg(18,19),seg(19,20),dist3(lm[17],lm[20])/ps,
+    dist2(lm[5],lm[17])/ps,
+    seg(1,2),seg(2,3),seg(3,4),dist2(lm[1],lm[4])/ps,
+    seg(5,6),seg(6,7),seg(7,8),dist2(lm[5],lm[8])/ps,
+    seg(9,10),seg(10,11),seg(11,12),dist2(lm[9],lm[12])/ps,
+    seg(13,14),seg(14,15),seg(15,16),dist2(lm[13],lm[16])/ps,
+    seg(17,18),seg(18,19),seg(19,20),dist2(lm[17],lm[20])/ps,
   ];
   return vals.map((v,i)=>mapScore(v,ranges[i][0],ranges[i][1]));
 }
